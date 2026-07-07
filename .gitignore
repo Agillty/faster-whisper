@@ -13,3 +13,6 @@ venv/
 # Ignore IDE, Editor Files
 .idea/
 .vscode/
+
+# video
+*.mp4

@@ -1,0 +1,15 @@
+name: whisper-env2
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - faster-whisper
+      - ctranslate2==4.3.1
+      - nvidia-cublas-cu12
+      - nvidia-cudnn-cu12
+      - ipykernel
+      - wheel
+      - setuptools==69.5.1

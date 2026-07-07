@@ -17,3 +17,5 @@ venv/
 # video
 *.mp4
 *.srt
+*.png
+*.m4a

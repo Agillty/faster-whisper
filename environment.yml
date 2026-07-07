@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - python=3.10
+  - ffmpeg
   - pip
   - pip:
       - faster-whisper
@@ -13,3 +14,5 @@ dependencies:
       - ipykernel
       - wheel
       - setuptools==69.5.1
+      - moviepy
+      - Pillow

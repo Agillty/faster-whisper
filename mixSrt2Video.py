@@ -1,6 +1,14 @@
 
 #%%
 import os
+from moviepy import VideoFileClip
+from moviepy import VideoFileClip, vfx
+from moviepy.video.io.VideoFileClip import VideoFileClip
+from moviepy.video.VideoClip import ImageClip, TextClip
+from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
+from moviepy import concatenate_videoclips
+
+from PIL import Image, ImageFont, ImageDraw
 
 # 定義轉換為總秒數的函式
 def time2sec(t):
@@ -38,4 +46,59 @@ for i in range(len(srt_list)):
 
 print(sec_list)
 print(text_list)
+# %%
+# font = ImageFont.truetype('NotoSansTC-Regular.otf', 20)   # 設定文字字體和大小
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+font_path = os.path.join(base_path, 'assets', 'fonts', 'kaiu.ttf')
+font = ImageFont.truetype(font_path, 20)
+
+# video = VideoFileClip("2026_Github01_raw1.mp4").with_effects([vfx.Resize((480, 240))])
+video = VideoFileClip("2026_Github01_raw1.mp4") # 讀取影片
+w, h = video.size  # 動態獲取影片寬高
+
+video_duration = float(video.duration)                    # 讀取影片總長度
+output_list = []                                          # 記錄最後要組合的影片片段
+
+# 如果字幕最後的時間小於總長度
+if sec_list[-1][1] != video_duration:
+    sec_list.append([sec_list[-1][1],video_duration])     # 添加時間到時間串列
+    text_list.append('')                                  # 添加空字串到文字串列
+
+# 建立文字字卡函式
+def text_clip(text, name,video_w, video_h):
+# 產生與影片同大小的透明背景
+    img = Image.new('RGBA', (video_w, video_h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    
+    # 動態計算文字大小與位置 (設定字體大小為高度的 1/20)
+    font_size = int(video_h * 0.05)
+    font = ImageFont.truetype(font_path, font_size)
+    
+    # 計算文字寬度 (估算)
+    text_width = font_size * len(text)
+    
+    # 將文字放在底部 80% 的位置
+    draw.text(((video_w - text_width) / 2, video_h * 0.8), 
+              text, fill=(255, 255, 255), font=font, 
+              stroke_width=2, stroke_fill='black')
+    img.save(name)
+
+# 建立影片和文字合併的函式
+def text_in_video(t, text_img):
+    # clip = video.subclip(t[0],t[1])                  # 剪輯影片到指定長度
+    clip = video.subclipped(t[0], t[1])
+    # text = ImageClip(text_img, transparent=True).set_duration(t[1]-t[0])  # 讀取字卡，調整為影片長度
+    text = ImageClip(text_img).with_duration(t[1] - t[0])
+    combine_clip = CompositeVideoClip([clip, text])  # 合併影片和文字
+    output_list.append(combine_clip)                 # 添加到影片片段裡
+
+# 使用 for 迴圈，產生文字字卡
+for i in range(len(text_list)):
+    text_clip(text_list[i], 'srt.png',w,h)
+    text_in_video(sec_list[i], 'srt.png')
+
+output = concatenate_videoclips(output_list)      # 合併所有影片片段
+output.write_videofile("output.mp4",temp_audiofile="temp-audio.m4a", remove_temp=True, codec="libx264", audio_codec="aac")
+print('ok')
 # %%

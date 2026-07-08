@@ -17,3 +17,4 @@ dependencies:
       - moviepy
       - Pillow
       - opencv-python
+#需要 於  https://www.gyan.dev/ffmpeg/builds/ 下載ffmpeg 並解壓縮拿出bin資料夾內的ffmpeg.exe放到專案中

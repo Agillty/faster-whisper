@@ -1,10 +1,14 @@
 name: whisper-env2
 channels:
+  - pytorch
+  - nvidia
   - conda-forge
   - defaults
 dependencies:
   - python=3.10
   - ffmpeg
+  - pytorch=2.3.1  # 💡 直接讓 Conda 去官方 pytorch 頻道抓對應的版本
+  - pytorch-cuda=12.1  # 💡 強制綁定並下載 NVIDIA CUDA 12 執行庫
   - pip
   - pip:
       - faster-whisper
@@ -17,4 +21,13 @@ dependencies:
       - moviepy
       - Pillow
       - opencv-python
+      - transformers==4.45.0
+      - accelerate
+      - bitsandbytes
+variables:
+  KMP_DUPLICATE_LIB_OK: "TRUE"
+
+
+
+
 #需要 於  https://www.gyan.dev/ffmpeg/builds/ 下載ffmpeg 並解壓縮拿出bin資料夾內的ffmpeg.exe放到專案中

@@ -57,16 +57,38 @@ process = subprocess.Popen(
 )
 
 # 4. 監控輸出
+# 4. 監控輸出（升級版：自動計算進度與剩餘時間）
+total_seconds = 3 * 3600 + 6 * 60 + 9  # 3小時06分09秒 = 11169 秒
+
 try:
     for line in process.stdout:
         line_str = line.strip()
         if not line_str: continue
         
-        if "frame=" in line_str or "time=" in line_str or "speed=" in line_str:
-            print(line_str, end="\r")
-        else:
-            print(f"[FFmpeg 輸出]: {line_str}")
+        if "frame=" in line_str and "time=" in line_str:
+            # 擷取當前處理到影片的第幾秒
+            try:
+                time_part = line_str.split("time=")[1].split()[0]
+                h, m, s = time_part.split(":")
+                current_seconds = int(h)*3600 + int(m)*60 + float(s)
                 
+                # 擷取目前速度 (例如 speed=4.17x)
+                speed_part = line_str.split("speed=")[1].split()[0].replace('x', '')
+                speed = float(speed_part) if speed_part != "N/A" else 1.0
+                
+                # 計算百分比與剩餘時間
+                pct = (current_seconds / total_seconds) * 100
+                remaining_sec = (total_seconds - current_seconds) / speed if speed > 0 else 0
+                
+                eta_m = int(remaining_sec // 60)
+                eta_s = int(remaining_sec % 60)
+                
+                print(f"進度: {pct:.2f}% | 剩餘時間估計: {eta_m}分{eta_s}秒 | 當前數據 -> {line_str[:60]}", end="\r")
+            except:
+                print(line_str, end="\r")
+        else:
+            if "frame=" not in line_str:
+                print(f"[FFmpeg 輸出]: {line_str}")
 except Exception as e:
     print(f"\n讀取輸出時發生錯誤: {e}")
 

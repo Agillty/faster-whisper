@@ -16,3 +16,4 @@ dependencies:
       - setuptools==69.5.1
       - moviepy
       - Pillow
+      - opencv-python
